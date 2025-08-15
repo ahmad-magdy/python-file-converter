@@ -7,11 +7,10 @@ run = "gunicorn --bind 0.0.0.0:8080 app:app"
 # Use the Nix package manager to install system dependencies
 [nix]
 channel = "stable-23_11"
-
-[nix.dependencies]
 # List of packages to install from the Nixpkgs collection
 pkgs = [
   "pkgs.tesseract",
   "pkgs.tesseract_data_eng",
-  "pkgs.tesseract_data_ara"
+  "pkgs.tesseract_data_ara",
+  "pkgs.mupdf"
 ]

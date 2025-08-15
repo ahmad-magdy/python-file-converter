@@ -28,9 +28,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["RESULTS_FOLDER"] = RESULTS_FOLDER
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = timedelta(seconds=0)
 
-# ===== Tesseract path has been removed =====
-# The deployment environment will have Tesseract installed in the system PATH.
-# ==============================================
+# ===== Tesseract path is REMOVED for deployment =====
 
 # ---------- Helpers ----------
 def allowed_file(filename: str, allowed: set) -> bool:
@@ -54,21 +52,9 @@ def images_bytes_to_pdf(image_bytes_list: List[bytes]) -> bytes:
     pdf_bytes = img2pdf.convert(img_streams)
     return pdf_bytes
 
-# Route to serve uploaded/result files (safe)
-@app.get("/files/<path:filename>")
-def serve_uploaded_file(filename):
-    safe_path = safe_join(app.config["UPLOAD_FOLDER"], filename)
-    if safe_path and os.path.isfile(safe_path):
-        return send_file(safe_path, as_attachment=False)
-    safe_path2 = safe_join(app.config["RESULTS_FOLDER"], filename)
-    if safe_path2 and os.path.isfile(safe_path2):
-        return send_file(safe_path2, as_attachment=False)
-    abort(404)
-
 # ---------- Routes ----------
 @app.get("/")
 def index():
-    # Assuming you have an index.html in a 'templates' folder
     return render_template("index.html")
 
 # 1) PDF -> JPG(s)
@@ -86,7 +72,6 @@ def convert_pdf_to_jpg():
         flash("Only .pdf files are allowed.", "error")
         return redirect(url_for("index"))
 
-    filename = secure_filename(file.filename)
     try:
         pdf_bytes = file.read()
         images = pdf_bytes_to_jpegs(pdf_bytes, dpi=dpi, jpeg_quality=quality)
@@ -94,7 +79,7 @@ def convert_pdf_to_jpg():
             flash("No pages found in PDF.", "error")
             return redirect(url_for("index"))
 
-        base = os.path.splitext(filename)[0]
+        base = os.path.splitext(secure_filename(file.filename))[0]
         if len(images) == 1:
             out_name = f"{base}_page1.jpg"
             return send_file(io.BytesIO(images[0]), mimetype="image/jpeg", as_attachment=True, download_name=out_name)
@@ -106,7 +91,6 @@ def convert_pdf_to_jpg():
                     zf.writestr(f"{base}_page{i}.jpg", img_bytes)
             zip_buffer.seek(0)
             return send_file(zip_buffer, mimetype="application/zip", as_attachment=True, download_name=zip_name)
-
     except Exception as e:
         app.logger.exception("PDF->JPG failed")
         flash(f"Conversion failed: {e}", "error")
@@ -120,21 +104,14 @@ def convert_jpg_to_pdf():
         flash("Please choose one or more image files.", "error")
         return redirect(url_for("index"))
 
-    image_bytes_list = []
-    for f in files:
-        if f and allowed_file(f.filename, ALLOWED_IMG_EXT):
-            image_bytes_list.append(f.read())
-        else:
-            flash(f"Skipping unsupported file: {f.filename}", "warning")
-
+    image_bytes_list = [f.read() for f in files if f and allowed_file(f.filename, ALLOWED_IMG_EXT)]
     if not image_bytes_list:
         flash("No valid images provided (jpg/jpeg/png).", "error")
         return redirect(url_for("index"))
 
     try:
         pdf_bytes = images_bytes_to_pdf(image_bytes_list)
-        out_name = "images_merged.pdf"
-        return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf", as_attachment=True, download_name=out_name)
+        return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf", as_attachment=True, download_name="images_merged.pdf")
     except Exception as e:
         app.logger.exception("JPG->PDF failed")
         flash(f"Conversion failed: {e}", "error")
@@ -144,13 +121,11 @@ def convert_jpg_to_pdf():
 @app.post("/image-to-text")
 def image_to_text():
     file = request.files.get("image")
-    # THIS LINE IS UPDATED to match the new default
     lang = request.form.get("lang", "eng")
 
     if not file or file.filename == "":
         flash("Please choose an image file.", "error")
         return redirect(url_for("index"))
-
     if not allowed_file(file.filename, ALLOWED_IMG_EXT):
         flash("Only JPG, JPEG, or PNG files are allowed for OCR.", "error")
         return redirect(url_for("index"))
@@ -158,28 +133,26 @@ def image_to_text():
     try:
         img = Image.open(file.stream).convert("RGB")
         text = pytesseract.image_to_string(img, lang=lang)
-
-        # save text result to a file for download
         base = os.path.splitext(secure_filename(file.filename))[0]
         out_txt_name = f"{base}_ocr.txt"
         out_txt_path = os.path.join(app.config["RESULTS_FOLDER"], out_txt_name)
         with open(out_txt_path, "w", encoding="utf-8") as f:
             f.write(text)
-
         return render_template("ocr_result.html", text=text, txt_download=out_txt_name, lang=lang)
-    except pytesseract.TesseractNotFoundError:
-        flash("Tesseract not found on system — check the path in app.py", "error")
-        return redirect(url_for("index"))
     except Exception as e:
         app.logger.exception("OCR failed")
         flash(f"OCR failed: {e}", "error")
         return redirect(url_for("index"))
 
+# Download result TXT helper
+@app.get("/download-txt/<filename>")
+def download_txt(filename):
+    path = os.path.join(app.config["RESULTS_FOLDER"], secure_filename(filename))
+    if os.path.isfile(path):
+        return send_file(path, as_attachment=True)
+    abort(404)
+
 # Health check for the hosting service
 @app.get("/healthz")
 def healthz():
     return {"status": "ok"}
-
-# This block is not needed for production servers like Gunicorn
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), debug=False)
