@@ -1,14 +1,16 @@
 # .replit configuration file
 language = "python3"
 
-# Command to run the application
-# Package installation should be done manually in the Shell tab if needed.
+# This command runs automatically when the Repl boots up.
+# It ensures all Python packages are installed before you click "Run".
+onBoot = "pip install -r requirements.txt"
+
+# This is the command that runs when you click the "Run" button.
 run = "gunicorn --bind 0.0.0.0:8080 app:app"
 
 # Use the Nix package manager to install system dependencies
 [nix]
 channel = "stable-23_11"
-# List of packages to install from the Nixpkgs collection
 pkgs = [
   "pkgs.tesseract",
   "pkgs.tesseract_data_eng",
