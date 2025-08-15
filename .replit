@@ -6,7 +6,8 @@ language = "python3"
 onBoot = "pip install -r requirements.txt"
 
 # This is the command that runs when you click the "Run" button.
-run = "gunicorn --bind 0.0.0.0:8080 app:app"
+# It now calls gunicorn as a Python module to ensure it's found.
+run = "python -m gunicorn --bind 0.0.0.0:8080 app:app"
 
 # Use the Nix package manager to install system dependencies
 [nix]
