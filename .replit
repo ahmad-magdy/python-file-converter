@@ -1,26 +1,26 @@
 language = "python3"
 
-# Default mode: production with Gunicorn
-# You can change MODE in Replit Secrets to "dev" for Flask debug mode
+# Runs in dev mode if MODE=dev, otherwise production with Gunicorn
 run = """
-pip install -r requirements.txt &&
+python3 -m pip install --user -r requirements.txt
 if [ "$MODE" = "dev" ]; then
-  echo "🚀 Running in DEV mode with Flask...";
-  export FLASK_APP=app.py;
-  export FLASK_RUN_PORT=8080;
-  export FLASK_RUN_HOST=0.0.0.0;
-  export TESSDATA_PREFIX=/nix/store;
-  flask run;
+  echo "🚀 Running in DEV mode with Flask..."
+  export FLASK_APP=app.py
+  export FLASK_RUN_PORT=8080
+  export FLASK_RUN_HOST=0.0.0.0
+  export TESSDATA_PREFIX=/nix/store
+  flask run
 else
-  echo "🚀 Running in PROD mode with Gunicorn...";
-  export TESSDATA_PREFIX=/nix/store;
-  python3 -m gunicorn --bind 0.0.0.0:8080 --timeout 120 app:app;
+  echo "🚀 Running in PROD mode with Gunicorn..."
+  export TESSDATA_PREFIX=/nix/store
+  python3 -m gunicorn --bind 0.0.0.0:8080 --timeout 120 app:app
 fi
 """
 
 [nix]
 channel = "stable-23.11"
 deps = [
+  "python3Full",
   "tesseract",
   "tesseract-data-eng",
   "tesseract-data-ara",
