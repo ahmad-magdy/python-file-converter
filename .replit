@@ -12,8 +12,8 @@ run = "gunicorn --bind 0.0.0.0:8080 app:app"
 [nix]
 channel = "stable-23_11"
 pkgs = [
-  "pkgs.tesseract",
-  "pkgs.tesseract_data_eng",
-  "pkgs.tesseract_data_ara",
-  "pkgs.mupdf"
+  "tesseract",
+  "tesseract_data_eng",
+  "tesseract_data_ara",
+  "mupdf"
 ]
