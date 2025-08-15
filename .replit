@@ -1,20 +1,28 @@
-# .replit configuration file
 language = "python3"
 
-# This command runs automatically when the Repl boots up.
-# It ensures all Python packages are installed before you click "Run".
-onBoot = "pip install -r requirements.txt"
+# Default mode: production with Gunicorn
+# You can change MODE in Replit Secrets to "dev" for Flask debug mode
+run = """
+pip install -r requirements.txt &&
+if [ "$MODE" = "dev" ]; then
+  echo "🚀 Running in DEV mode with Flask...";
+  export FLASK_APP=app.py;
+  export FLASK_RUN_PORT=8080;
+  export FLASK_RUN_HOST=0.0.0.0;
+  export TESSDATA_PREFIX=/nix/store;
+  flask run;
+else
+  echo "🚀 Running in PROD mode with Gunicorn...";
+  export TESSDATA_PREFIX=/nix/store;
+  python3 -m gunicorn --bind 0.0.0.0:8080 --timeout 120 app:app;
+fi
+"""
 
-# This is the command that runs when you click the "Run" button.
-# It now calls gunicorn as a Python module to ensure it's found.
-run = "python -m gunicorn --bind 0.0.0.0:8080 app:app"
-
-# Use the Nix package manager to install system dependencies
 [nix]
-channel = "stable-23_11"
-pkgs = [
+channel = "stable-23.11"
+deps = [
   "tesseract",
-  "tesseract_data_eng",
-  "tesseract_data_ara",
-  "mupdf"
+  "tesseract-data-eng",
+  "tesseract-data-ara",
+  "mupdf-tools"
 ]
