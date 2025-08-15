@@ -9,7 +9,9 @@ run = "gunicorn --bind 0.0.0.0:8080 app:app"
 [nix]
 channel = "stable-23_11"
 # List of packages to install from the Nixpkgs collection
-pkgs.tesseract
-pkgs.tesseract_data_eng
-pkgs.tesseract_data_ara
-pkgs.mupdf
+pkgs = [
+  "pkgs.tesseract",
+  "pkgs.tesseract_data_eng",
+  "pkgs.tesseract_data_ara",
+  "pkgs.mupdf"
+]
