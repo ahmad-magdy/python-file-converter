@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid">
+  <section class="card">
+    <img class="card-header-image" src="https://media.gemini.media/img/Original/2017/5/3/2017_5_3_14_34_3_919.jpg" alt="PDF to Image Conversion" onerror="this.style.display='none'">
+    <h2>PDF → Images (JPG)</h2>
+    <form action="{{ url_for('convert_pdf_to_jpg') }}" method="post" enctype="multipart/form-data">
+      <label class="label">Choose a PDF file</label>
+      <input type="file" name="pdf" accept="application/pdf" required>
+      <div class="row">
+        <label>DPI <input type="number" name="dpi" value="200" min="72" max="600"></label>
+        <label>Quality <input type="number" name="quality" value="90" min="30" max="100"></label>
+      </div>
+      <button type="submit" class="btn">Convert and Download</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <img class="card-header-image" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjH99sk9L2CLos_LoXiwmb5r5SKZYbaiQtWOppfUXNVHl7IOEto9EpBdZcXuyQCNsCIfTMFZysG6reIdlpOwZwy1N9EasnmPHCKm-OYnsoGZWE78BRNG-1O8IIU9ZETGzOlbSMHR_S1hXA/s1600/Capture.PNG" alt="Image to PDF Conversion" onerror="this.style.display='none'">
+    <h2>Images (JPG/PNG) → PDF</h2>
+    <form action="{{ url_for('convert_jpg_to_pdf') }}" method="post" enctype="multipart/form-data">
+      <label class="label">Choose multiple images</label>
+      <input type="file" name="images" accept="image/jpeg,image/png" multiple required>
+      <button type="submit" class="btn">Combine and Download PDF</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <img class="card-header-image" src="https://static.wikia.nocookie.net/harrypotter/images/d/d8/Dumbledore_Memory.jpg" alt="OCR Image to Text" onerror="this.style.display='none'">
+    <h2>OCR — Image → Text</h2>
+    <form action="{{ url_for('image_to_text') }}" method="post" enctype="multipart/form-data">
+      <label class="label">Choose an image (JPG/PNG)</label>
+      <input type="file" name="image" accept="image/jpeg,image/png" required>
+      <label class="label">Language (Tesseract):</label>
+      <input type="text" name="lang" value="ara+eng" placeholder="e.g., eng, ara+eng">
+      <button type="submit" class="btn purple">Extract Text</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

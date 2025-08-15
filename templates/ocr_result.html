@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="card">
+  <h2>Extracted Text ({{ lang }})</h2>
+  <pre class="ocr-text">{{ text }}</pre>
+  
+  <div class="row" style="margin-top: 1.5rem;">
+    {% if txt_download %}
+      <a class="btn" href="{{ url_for('download_txt', filename=txt_download) }}">Download (TXT)</a>
+    {% endif %}
+    <a class="btn ghost" href="{{ url_for('index') }}">Back</a>
+  </div>
+</section>
+{% endblock %}

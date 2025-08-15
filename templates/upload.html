@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Converter</title>
+</head>
+<body>
+    <h1>File Converter & OCR</h1>
+
+    <h2>Image to PDF</h2>
+    <form action="/image_to_pdf" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Convert to PDF</button>
+    </form>
+
+    <h2>PDF to Images</h2>
+    <form action="/pdf_to_images" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="application/pdf" required>
+        <button type="submit">Convert to Images</button>
+    </form>
+
+    <h2>OCR (Extract Text)</h2>
+    <form action="/ocr" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*,application/pdf" required>
+        <button type="submit">Extract Text</button>
+    </form>
+</body>
+</html>

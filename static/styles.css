@@ -1,0 +1,280 @@
+/* static/style.css - Liquid Glass / Material Design Theme */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #3a7bfd;
+  --primary-color-dark: #2a6ae6;
+  --secondary-color: #7c3aed;
+  --text-color: #e2e8f0;
+  --text-color-muted: #94a3b8;
+  --bg-start: #0f172a;
+  --bg-end: #1e293b;
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --card-shadow: rgba(8, 7, 16, 0.2);
+  --blur-intensity: 10px;
+  --border-radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', 'Inter', Segoe UI, Arial, sans-serif;
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+  color: var(--text-color);
+  min-height: 100vh;
+  background-attachment: fixed;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Header */
+.topbar {
+  background: transparent;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.topbar .container {
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Main Content Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+/* Glassmorphism Card */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--blur-intensity));
+  -webkit-backdrop-filter: blur(var(--blur-intensity));
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: 0 8px 32px 0 var(--card-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden; /* Added to contain the new header image */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 var(--card-shadow);
+}
+
+/* New Card Header Image Style */
+.card-header-image {
+    width: calc(100% + 4rem);
+    margin: -2rem -2rem 1.5rem -2rem;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--card-border);
+}
+
+
+.card h2 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 0.75rem;
+}
+
+/* Form Elements */
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-color-muted);
+  font-size: 0.9rem;
+}
+
+input[type=file],
+input[type=text],
+input[type=number] {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--text-color);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+input[type=file] {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+input::placeholder {
+  color: var(--text-color-muted);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(58, 123, 253, 0.5);
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.row label {
+  flex: 1;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  width: 100%;
+  background: var(--primary-color);
+  color: #fff;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  border: none;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--primary-color-dark);
+  transform: scale(1.02);
+}
+
+.btn.purple {
+  background: var(--secondary-color);
+}
+.btn.purple:hover {
+    background: #682abe;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--card-border);
+}
+.btn.ghost:hover {
+    background: var(--card-bg);
+    border-color: var(--primary-color);
+}
+
+/* Result Page */
+.result-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.result-header h2 {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.result-header p {
+    color: var(--text-color-muted);
+    font-size: 0.9rem;
+}
+.result-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.result-actions a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.result-actions a.btn {
+    width: auto; /* Override full width for action buttons */
+}
+
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.image-grid .img-container {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.image-grid img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 1 / 1.414; /* A4 paper aspect ratio */
+    object-fit: cover;
+}
+
+/* OCR Result */
+.ocr-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  color: var(--text-color);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Flash Messages */
+.flashes {
+    margin: 1rem 0;
+}
+.flash {
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid;
+}
+.flash.error { background: #2d1618; color: #f87171; border-color: #ef4444; }
+.flash.warning { background: #2c1d0f; color: #fb923c; border-color: #f97316; }
+.flash.success { background: #112318; color: #4ade80; border-color: #22c55e; }
+
+
+/* Footer */
+.footer {
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-color-muted);
+  font-size: 0.8rem;
+}

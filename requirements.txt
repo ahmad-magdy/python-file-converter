@@ -1,0 +1,6 @@
+Flask
+gunicorn
+PyMuPDF
+Pillow
+img2pdf
+pytesseract
