@@ -144,7 +144,8 @@ def convert_jpg_to_pdf():
 @app.post("/image-to-text")
 def image_to_text():
     file = request.files.get("image")
-    lang = request.form.get("lang", "eng").strip() or "eng"
+    # THIS LINE IS UPDATED to match the new default
+    lang = request.form.get("lang", "eng")
 
     if not file or file.filename == "":
         flash("Please choose an image file.", "error")
@@ -158,13 +159,16 @@ def image_to_text():
         img = Image.open(file.stream).convert("RGB")
         text = pytesseract.image_to_string(img, lang=lang)
 
+        # save text result to a file for download
         base = os.path.splitext(secure_filename(file.filename))[0]
         out_txt_name = f"{base}_ocr.txt"
-        
-        # Assuming you have an ocr_result.html in a 'templates' folder
-        return render_template("ocr_result.html", text=text, txt_download_name=out_txt_name, lang=lang)
+        out_txt_path = os.path.join(app.config["RESULTS_FOLDER"], out_txt_name)
+        with open(out_txt_path, "w", encoding="utf-8") as f:
+            f.write(text)
+
+        return render_template("ocr_result.html", text=text, txt_download=out_txt_name, lang=lang)
     except pytesseract.TesseractNotFoundError:
-        flash("Tesseract is not installed or not in its PATH.", "error")
+        flash("Tesseract not found on system — check the path in app.py", "error")
         return redirect(url_for("index"))
     except Exception as e:
         app.logger.exception("OCR failed")
