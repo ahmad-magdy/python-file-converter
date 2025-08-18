@@ -1,3 +1,4 @@
+# app.py
 import io
 import os
 import zipfile
@@ -10,34 +11,6 @@ import fitz  # PyMuPDF
 from PIL import Image
 import img2pdf
 import pytesseract
-
-import shutil
-import pytesseract
-
-# Auto-detect Tesseract binary path at runtime
-tesseract_path = shutil.which("tesseract")
-if tesseract_path:
-    pytesseract.pytesseract.tesseract_cmd = tesseract_path
-else:
-    raise EnvironmentError("Tesseract not found in PATH. Please install it via Replit Nix config.")
-
-
-# ======== Auto Tesseract Detection ========
-def configure_tesseract():
-    # If running on Replit, set binary & data prefix
-    if "REPL_ID" in os.environ:
-        # Common Nix path for Tesseract binary
-        possible_bin = "/nix/store"
-        for root, dirs, files in os.walk(possible_bin):
-            if "tesseract" in files:
-                pytesseract.pytesseract.tesseract_cmd = os.path.join(root, "tesseract")
-                os.environ["TESSDATA_PREFIX"] = "/nix/store"
-                break
-    else:
-        # Default: rely on system PATH
-        pytesseract.pytesseract.tesseract_cmd = "tesseract"
-
-configure_tesseract()
 
 # --------- Configuration ----------
 UPLOAD_FOLDER = "uploads"
@@ -55,11 +28,22 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["RESULTS_FOLDER"] = RESULTS_FOLDER
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = timedelta(seconds=0)
 
+# ===== FIX FOR REPLIT TESSERACT PATH =====
+# This code finds the Tesseract executable in the Nix environment and sets the path
+try:
+    tesseract_cmd = os.popen('which tesseract').read().strip()
+    if tesseract_cmd:
+        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+except Exception as e:
+    print(f"Could not set Tesseract path: {e}")
+# ==============================================
+
 # ---------- Helpers ----------
 def allowed_file(filename: str, allowed: set) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in allowed
 
 def pdf_bytes_to_jpegs(pdf_bytes: bytes, dpi: int = 200, jpeg_quality: int = 90) -> List[bytes]:
+    """Return list of jpeg bytes, one per PDF page."""
     images: List[bytes] = []
     with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
         for page in doc:
@@ -71,7 +55,10 @@ def pdf_bytes_to_jpegs(pdf_bytes: bytes, dpi: int = 200, jpeg_quality: int = 90)
     return images
 
 def images_bytes_to_pdf(image_bytes_list: List[bytes]) -> bytes:
-    return img2pdf.convert(image_bytes_list)
+    """Return single PDF bytes created from image bytes list (keeps order)."""
+    img_streams = [b for b in image_bytes_list]
+    pdf_bytes = img2pdf.convert(img_streams)
+    return pdf_bytes
 
 # ---------- Routes ----------
 @app.get("/")
@@ -88,6 +75,7 @@ def convert_pdf_to_jpg():
     if not file or file.filename == "":
         flash("Please choose a PDF file.", "error")
         return redirect(url_for("index"))
+
     if not allowed_file(file.filename, ALLOWED_PDF_EXT):
         flash("Only .pdf files are allowed.", "error")
         return redirect(url_for("index"))
@@ -164,6 +152,7 @@ def image_to_text():
         flash(f"OCR failed: {e}", "error")
         return redirect(url_for("index"))
 
+# Download result TXT helper
 @app.get("/download-txt/<filename>")
 def download_txt(filename):
     path = os.path.join(app.config["RESULTS_FOLDER"], secure_filename(filename))
@@ -171,10 +160,7 @@ def download_txt(filename):
         return send_file(path, as_attachment=True)
     abort(404)
 
+# Health check for the hosting service
 @app.get("/healthz")
 def healthz():
     return {"status": "ok"}
-
-# Local dev mode
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
