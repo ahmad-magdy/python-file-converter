@@ -1,13 +1,9 @@
 # .replit configuration file
 language = "python3"
 
-# This command runs automatically when the Repl boots up.
-# It ensures all Python packages are installed before you click "Run".
-onBoot = "pip install -r requirements.txt"
-
-# This is the command that runs when you click the "Run" button.
-# It now calls gunicorn as a Python module to ensure it's found.
-run = "python3 -m gunicorn --bind 0.0.0.0:8080 app:app"
+# The onBoot command is removed to prevent context switching issues.
+# Instead, we chain the commands in the 'run' field.
+run = "pip install -r requirements.txt && python3 -m gunicorn --bind 0.0.0.0:8080 app:app"
 
 # Use the Nix package manager to install system dependencies
 [nix]
