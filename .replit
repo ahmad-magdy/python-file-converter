@@ -1,28 +1,18 @@
+# .replit configuration file
 language = "python3"
 
-# Runs in dev mode if MODE=dev, otherwise production with Gunicorn
-run = """
-python3 -m pip install --user -r requirements.txt
-if [ "$MODE" = "dev" ]; then
-  echo "🚀 Running in DEV mode with Flask..."
-  export FLASK_APP=app.py
-  export FLASK_RUN_PORT=8080
-  export FLASK_RUN_HOST=0.0.0.0
-  export TESSDATA_PREFIX=/nix/store
-  flask run
-else
-  echo "🚀 Running in PROD mode with Gunicorn..."
-  export TESSDATA_PREFIX=/nix/store
-  python3 -m gunicorn --bind 0.0.0.0:8080 --timeout 120 app:app
-fi
-"""
+# Install Python deps before run
+onBoot = "pip install -r requirements.txt"
 
+# Run your Flask app with Gunicorn
+run = "python -m gunicorn --bind 0.0.0.0:8080 app:app"
+
+# Use the Nix package manager to install system dependencies
 [nix]
 channel = "stable-23.11"
 deps = [
-  "python3Full",
   "tesseract",
-  "tesseract-data-eng",
-  "tesseract-data-ara",
-  "mupdf-tools"
+  "tesseract_data_eng",
+  "tesseract_data_ara",
+  "mupdf"
 ]
