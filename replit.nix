@@ -1,3 +1,4 @@
+cat > replit.nix << 'EOF'
 { pkgs }: {
   deps = [
     pkgs.python311
@@ -9,3 +10,4 @@
     pkgs.tesseract4
   ];
 }
+EOF
