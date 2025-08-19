@@ -1,8 +1,11 @@
-run = "bash start.sh"
-
-[env]
-FLASK_APP = "app.py"
-FLASK_ENV = "development"
-FLASK_RUN_HOST = "0.0.0.0"
-FLASK_RUN_PORT = "8080"
-TESSERACT_CMD = "/usr/bin/tesseract"
+{ pkgs }: {
+  deps = [
+    pkgs.python311
+    pkgs.python311Packages.flask
+    pkgs.python311Packages.pillow
+    pkgs.python311Packages.pytesseract
+    pkgs.python311Packages.img2pdf
+    pkgs.python311Packages.PyMuPDF
+    pkgs.tesseract4
+  ];
+}
