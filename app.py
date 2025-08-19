@@ -1,12 +1,13 @@
-# app.py
 import io
 import os
 import zipfile
 from datetime import timedelta
 from typing import List
-from flask import (Flask, render_template, request, redirect, url_for, flash,
-                   send_file, abort)
-from werkzeug.utils import secure_filename, safe_join
+from flask import (
+    Flask, render_template, request, redirect, url_for,
+    flash, send_file, abort
+)
+from werkzeug.utils import secure_filename
 import fitz  # PyMuPDF
 from PIL import Image
 import img2pdf
@@ -29,7 +30,6 @@ app.config["RESULTS_FOLDER"] = RESULTS_FOLDER
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = timedelta(seconds=0)
 
 # ===== FIX FOR REPLIT TESSERACT PATH =====
-# This code reads the Tesseract path from the environment variable set in .replit
 tesseract_path = os.environ.get('TESSERACT_CMD')
 if tesseract_path:
     pytesseract.pytesseract.tesseract_cmd = tesseract_path
@@ -40,7 +40,7 @@ def allowed_file(filename: str, allowed: set) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in allowed
 
 def pdf_bytes_to_jpegs(pdf_bytes: bytes, dpi: int = 200, jpeg_quality: int = 90) -> List[bytes]:
-    """Return list of jpeg bytes, one per PDF page."""
+    """Return list of JPEG bytes, one per PDF page."""
     images: List[bytes] = []
     with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
         for page in doc:
@@ -53,7 +53,7 @@ def pdf_bytes_to_jpegs(pdf_bytes: bytes, dpi: int = 200, jpeg_quality: int = 90)
 
 def images_bytes_to_pdf(image_bytes_list: List[bytes]) -> bytes:
     """Return single PDF bytes created from image bytes list (keeps order)."""
-    img_streams = [b for b in image_bytes_list]
+    img_streams = [io.BytesIO(b) for b in image_bytes_list]
     pdf_bytes = img2pdf.convert(img_streams)
     return pdf_bytes
 
@@ -87,7 +87,8 @@ def convert_pdf_to_jpg():
         base = os.path.splitext(secure_filename(file.filename))[0]
         if len(images) == 1:
             out_name = f"{base}_page1.jpg"
-            return send_file(io.BytesIO(images[0]), mimetype="image/jpeg", as_attachment=True, download_name=out_name)
+            return send_file(io.BytesIO(images[0]), mimetype="image/jpeg",
+                             as_attachment=True, download_name=out_name)
         else:
             zip_name = f"{base}_pages.zip"
             zip_buffer = io.BytesIO()
@@ -95,7 +96,8 @@ def convert_pdf_to_jpg():
                 for i, img_bytes in enumerate(images, start=1):
                     zf.writestr(f"{base}_page{i}.jpg", img_bytes)
             zip_buffer.seek(0)
-            return send_file(zip_buffer, mimetype="application/zip", as_attachment=True, download_name=zip_name)
+            return send_file(zip_buffer, mimetype="application/zip",
+                             as_attachment=True, download_name=zip_name)
     except Exception as e:
         app.logger.exception("PDF->JPG failed")
         flash(f"Conversion failed: {e}", "error")
@@ -116,7 +118,8 @@ def convert_jpg_to_pdf():
 
     try:
         pdf_bytes = images_bytes_to_pdf(image_bytes_list)
-        return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf", as_attachment=True, download_name="images_merged.pdf")
+        return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf",
+                         as_attachment=True, download_name="images_merged.pdf")
     except Exception as e:
         app.logger.exception("JPG->PDF failed")
         flash(f"Conversion failed: {e}", "error")
@@ -140,10 +143,11 @@ def image_to_text():
         text = pytesseract.image_to_string(img, lang=lang)
         base = os.path.splitext(secure_filename(file.filename))[0]
         out_txt_name = f"{base}_ocr.txt"
-        out_txt_path = os.path.join(app.config["RESULTS_FOLDER"], out_txt_name)
+        out_txt_path = os.path.join(app.config["RESULTS_FOLDER"], secure_filename(out_txt_name))
         with open(out_txt_path, "w", encoding="utf-8") as f:
             f.write(text)
-        return render_template("ocr_result.html", text=text, txt_download=out_txt_name, lang=lang)
+        return render_template("ocr_result.html", text=text,
+                               txt_download=out_txt_name, lang=lang)
     except Exception as e:
         app.logger.exception("OCR failed")
         flash(f"OCR failed: {e}", "error")
@@ -152,7 +156,8 @@ def image_to_text():
 # Download result TXT helper
 @app.get("/download-txt/<filename>")
 def download_txt(filename):
-    path = os.path.join(app.config["RESULTS_FOLDER"], secure_filename(filename))
+    safe_name = secure_filename(filename)
+    path = os.path.join(app.config["RESULTS_FOLDER"], safe_name)
     if os.path.isfile(path):
         return send_file(path, as_attachment=True)
     abort(404)

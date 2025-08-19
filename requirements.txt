@@ -1,6 +1,5 @@
 flask
-gunicorn
 pillow
 pytesseract
-PyMuPDF
 img2pdf
+PyMuPDF
