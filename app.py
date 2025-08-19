@@ -1,12 +1,11 @@
+# app.py
 import io
 import os
 import zipfile
 from datetime import timedelta
 from typing import List
-from flask import (
-    Flask, render_template, request, redirect, url_for,
-    flash, send_file, abort
-)
+from flask import (Flask, render_template, request, redirect, url_for, flash,
+                   send_file, abort)
 from werkzeug.utils import secure_filename
 import fitz  # PyMuPDF
 from PIL import Image
@@ -30,9 +29,13 @@ app.config["RESULTS_FOLDER"] = RESULTS_FOLDER
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = timedelta(seconds=0)
 
 # ===== FIX FOR REPLIT TESSERACT PATH =====
-tesseract_path = os.environ.get('TESSERACT_CMD')
-if tesseract_path:
-    pytesseract.pytesseract.tesseract_cmd = tesseract_path
+# This code finds the Tesseract executable in the Nix environment and sets the path
+try:
+    tesseract_cmd = os.popen('which tesseract').read().strip()
+    if tesseract_cmd:
+        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+except Exception as e:
+    print(f"Could not set Tesseract path: {e}")
 # ==============================================
 
 # ---------- Helpers ----------

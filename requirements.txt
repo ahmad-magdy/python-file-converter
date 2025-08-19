@@ -1,5 +1,6 @@
-flask
-pillow
-pytesseract
-img2pdf
+Flask
+gunicorn
 PyMuPDF
+Pillow
+img2pdf
+pytesseract
