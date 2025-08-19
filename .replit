@@ -1,20 +1,11 @@
-# .replit configuration file
-language = "python3"
+run = "bash start.sh"
 
-# This command runs automatically when the Repl boots up.
-# It ensures all Python packages are installed before you click "Run".
-onBoot = "pip install -r requirements.txt"
+[env]
+# Flask config
+FLASK_APP = "app.py"
+FLASK_ENV = "development"
+FLASK_RUN_HOST = "0.0.0.0"
+FLASK_RUN_PORT = "8080"
 
-# This is the command that runs when you click the "Run" button.
-# It now uses a more explicit path to find the python3 executable.
-run = "/usr/bin/env python3 -m gunicorn --bind 0.0.0.0:8080 app:app"
-
-# Use the Nix package manager to install system dependencies
-[nix]
-channel = "stable_23_11"
-deps = [
-  "tesseract",
-  "tesseract_data_eng",
-  "tesseract_data_ara",
-  "mupdf"
-]
+# Tell pytesseract where to find the binary
+TESSERACT_CMD = "/usr/bin/tesseract"
