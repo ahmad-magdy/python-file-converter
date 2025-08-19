@@ -1,9 +1,17 @@
 # .replit configuration file
 language = "python3"
 
-# The onBoot command is removed to prevent context switching issues.
-# Instead, we chain the commands in the 'run' field.
-run = "pip install -r requirements.txt && python3 -m gunicorn --bind 0.0.0.0:8080 app:app"
+# This command runs automatically when the Repl boots up.
+# It installs Python packages, finds the Tesseract path,
+# and exports it as an environment variable.
+onBoot = """
+pip install -r requirements.txt
+export TESSERACT_CMD=$(which tesseract)
+echo "Tesseract path set to $TESSERACT_CMD"
+"""
+
+# This is the command that runs when you click the "Run" button.
+run = "python3 -m gunicorn --bind 0.0.0.0:8080 app:app"
 
 # Use the Nix package manager to install system dependencies
 [nix]

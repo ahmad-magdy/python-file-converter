@@ -29,13 +29,10 @@ app.config["RESULTS_FOLDER"] = RESULTS_FOLDER
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = timedelta(seconds=0)
 
 # ===== FIX FOR REPLIT TESSERACT PATH =====
-# This code finds the Tesseract executable in the Nix environment and sets the path
-try:
-    tesseract_cmd = os.popen('which tesseract').read().strip()
-    if tesseract_cmd:
-        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
-except Exception as e:
-    print(f"Could not set Tesseract path: {e}")
+# This code reads the Tesseract path from the environment variable set in .replit
+tesseract_path = os.environ.get('TESSERACT_CMD')
+if tesseract_path:
+    pytesseract.pytesseract.tesseract_cmd = tesseract_path
 # ==============================================
 
 # ---------- Helpers ----------
