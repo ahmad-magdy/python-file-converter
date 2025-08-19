@@ -1,10 +1,11 @@
-cat > .replit << 'EOF'
 run = "bash start.sh"
 
 [env]
+# Flask environment variables
 FLASK_APP = "app.py"
 FLASK_ENV = "development"
 FLASK_RUN_HOST = "0.0.0.0"
 FLASK_RUN_PORT = "8080"
+
+# Tell pytesseract where to find the binary
 TESSERACT_CMD = "/usr/bin/tesseract"
-EOF
